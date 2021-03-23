@@ -1,0 +1,11 @@
+CISC 3320 Homework 2
+Author: Jonathan Scarpelli
+Role: Developer
+
+Problem Statement:
+
+Modify the PID and Thread Managers previously created to use mutual-exclusion locks (mutexes). These prevent data races in threads and other forms of data structure corruption.
+
+The problem with the previous thread class is that the random sleep times create a race condition to finish first. If two threads manipulate a shared resource of variable, this may cause the application to crash.
+
+The solution is mutexes that force threads to wait before making function calls that may cause a problem. Once a thread is complete, a lock is released and acquired by another thread.
