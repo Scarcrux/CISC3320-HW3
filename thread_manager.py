@@ -7,6 +7,16 @@ from random import randrange
 # Create global variable for the mutex class
 mutex = threading.Lock()
 
+# Track number of PID threads created
+class PidCounter:
+    # Initial value reflects PID range of 300-5000
+    def __init__(self):
+        self.count = 300
+
+    # Increase the count by 1
+    def increment(self):
+        self.count += 1
+
 # Create a PID thread instance
 class PidThread(Thread):
     # Assign variables from parameters
@@ -16,26 +26,27 @@ class PidThread(Thread):
         self.name = name
         self.sleep = sleep
 
-    # Start thread, call PID cycle function, and end thread
+    # Start thread, call PID sleep function, and end thread
     def run(self):
-        print("\nStarting " + self.name + " %d" %self.thread_id)
-        pid_cycle(self.thread_id, self.sleep)
+        # Acquire and release mutex lock
+        with mutex:
+            print("\nStarting " + self.name + " %d" %self.thread_id)
+            # Begin the PID process simulation: allocate PID
+            pid_status = pid_manager.allocate_pid()
+            if pid_status == -1:
+                print("\nError: Could not allocate a PID")
+            else:
+                print("\nAllocated PID %d" %self.thread_id)
+        self.pid_sleep(self.thread_id, self.sleep)
         print ("\nExiting " + self.name + " %d" %self.thread_id)
 
-# Simulate a PID process: allocate PID, sleep for a random
-# period of time, then release PID
-def pid_cycle(pid, sleep):
-    # Acquire and release mutex lock for function call
-    with mutex:
-        pid_status = pid_manager.allocate_pid()
-    if pid_status == -1:
-        print("\nError: Could not allocate a PID")
-    else:
-        print("\nAllocated PID %d" %pid)
-    time.sleep(sleep)
-    # Acquire and release mutex lock for function call
-    with mutex:
-        pid_manager.release_pid(pid)
+    # Continue PID process simulation: sleep for a random
+    # period of time then release PID
+    def pid_sleep(pid, sleep):
+        time.sleep(sleep)
+        # Acquire and release mutex lock for function call
+        with mutex:
+            pid_manager.release_pid(pid)
 
 # Thread Manager Command Line Interface
 # Return -1 on PID map allocation error
@@ -60,10 +71,13 @@ def main():
                 # Get user input for PID threads to create
                 pid_cycles = int(input("\nEnter number of PID threads to create: "))
                 threads = []
+                # Create an instance of the PID Counter
+                counter = PidCounter()
                 for i in range(300, 300 + pid_cycles):
                     # Create a PidThread with a random value
                     # set for the sleep parameter
-                    thread = PidThread(i, "PID Thread", randrange(10,60))
+                    thread = PidThread(counter.count, "PID Thread", randrange(10,60))
+                    counter.increment()
                     threads.append(thread)
                     thread.start()
                 for thread in threads:
