@@ -37,16 +37,16 @@ class PidThread(Thread):
                 print("\nError: Could not allocate a PID")
             else:
                 print("\nAllocated PID %d" %self.thread_id)
-        self.pid_sleep(self.thread_id, self.sleep)
+        self.pid_sleep()
         print ("\nExiting " + self.name + " %d" %self.thread_id)
 
     # Continue PID process simulation: sleep for a random
     # period of time then release PID
-    def pid_sleep(pid, sleep):
-        time.sleep(sleep)
+    def pid_sleep(self):
+        time.sleep(self.sleep)
         # Acquire and release mutex lock for function call
         with mutex:
-            pid_manager.release_pid(pid)
+            pid_manager.release_pid(self.thread_id)
 
 # Thread Manager Command Line Interface
 # Return -1 on PID map allocation error
