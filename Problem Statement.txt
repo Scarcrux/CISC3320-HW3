@@ -8,4 +8,4 @@ Modify the PID and Thread Managers previously created to use mutual-exclusion lo
 
 The problem with the previous thread class is that the random sleep times create a race condition to finish first. If two threads manipulate a shared resource of variable, this may cause the application to crash.
 
-The solution is mutexes that force threads to wait before making function calls that may cause a problem. Once a thread is complete, a lock is released and acquired by another thread.
+The solution is mutexes that force threads to wait before making function calls that may cause a problem. Once a thread is complete, a lock is released and acquired by another thread. This continues until all threads finish.
